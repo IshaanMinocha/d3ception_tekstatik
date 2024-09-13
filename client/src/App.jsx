@@ -1,5 +1,4 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
@@ -12,23 +11,8 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
+    <div className="font-bold text-2xl underline text-center mt-10">
+      <h1>D3CEPTION</h1>
       <form
         className="row"
         onSubmit={(e) => {
@@ -40,10 +24,10 @@ function App() {
           id="greet-input"
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a name..."
+          className="border-2 border-black m-10"
         />
-        <button type="submit">Greet</button>
+        <button className="bg-slate-500 rounded-xl p-3" type="submit">Greet</button>
       </form>
-
       <p>{greetMsg}</p>
     </div>
   );
