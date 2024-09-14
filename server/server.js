@@ -4,7 +4,8 @@ import connectDB from './config/db.js';
 import envConfig from './config/dotenv.js';
 import blueprintRoutes from './routes/blueprint.route.js';
 import userRoutes from './routes/user.route.js'
-import modelRoutes from './routes/model.route.js'
+// import modelRoutes from './routes/model.route.js'
+import uploadRoutes from './routes/upload.route.js'
 
 envConfig();
 connectDB();
@@ -20,7 +21,8 @@ app.use(express.json());
 
 app.use('/blueprint', blueprintRoutes);
 app.use('/user', userRoutes);
-app.use('/model', modelRoutes);
+app.use('/upload', uploadRoutes);
+// app.use('/model', modelRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
