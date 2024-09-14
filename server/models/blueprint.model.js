@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const BlueprintSchema = new mongoose.Schema({
-  fileName: String,
+  // fileName: String,
   height: Number,
   breadth: Number,
   length: Number,

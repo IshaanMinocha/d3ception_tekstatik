@@ -1,15 +1,22 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import FileUpload from "./components/FileUpload";
+import Auth from "./screens/Auth";
+import ImgTo3d from "./screens/ImgTo3d";
+import Dashboard from "./screens/Dashboard"
+import Navbar from "./components/Navbar"
 
 function App() {
 
-
   return (
     <>
-      <FileUpload/>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/imgto3d" element={<ImgTo3d />} />
+        </Routes>
+        <Navbar />
+      </BrowserRouter>
     </>
   );
 }

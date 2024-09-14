@@ -19,8 +19,9 @@ const GradientButton = ({ children, onClick, className = "", disabled = false })
   </button>
 );
 
-const backend = import.meta.env.BACKEND_URI;
-console.log(backend+'/api/upload')
+const backend = import.meta.env.VITE_BACKEND_URI;
+
+console.log(backend)
 
 const BlueprintForm = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -67,7 +68,7 @@ const BlueprintForm = () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await axiosInstance.post(`http://localhost:5000/api/upload`, formData, {
+      const response = await axiosInstance.post(`http://localhost:5000/blueprint/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -87,9 +88,9 @@ const BlueprintForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post(`http://localhost:5000/api/submit-blueprint`, {
+      const response = await axiosInstance.post(`http://localhost:5000/blueprint/submit`, {
         ...formData,
-        fileId: selectedFile ? selectedFile.name : null
+        // fileId: selectedFile ? selectedFile.name : null
       });
       if (response.status === 200) {
         console.log('Form submitted successfully');
