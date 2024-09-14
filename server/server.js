@@ -18,7 +18,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/api', blueprintRoutes);
+app.use('/', blueprintRoutes);
 
 const PORT = process.env.PORT || 3000;
 

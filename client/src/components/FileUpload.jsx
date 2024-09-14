@@ -1,6 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Check } from 'lucide-react';
 import axios from 'axios';
+import axiosTauriApiAdapter from 'axios-tauri-api-adapter';
+
+const axiosInstance = axios.create({
+  adapter: axiosTauriApiAdapter,
+});
 
 const GradientButton = ({ children, onClick, className = "", disabled = false }) => (
   <button
@@ -15,10 +20,10 @@ const GradientButton = ({ children, onClick, className = "", disabled = false })
 );
 
 const backend = import.meta.env.BACKEND_URI;
+console.log(backend+'/api/upload')
 
 const BlueprintForm = () => {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [progress, setProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState('select');
   const inputRef = useRef();
 
@@ -33,7 +38,6 @@ const BlueprintForm = () => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedFile(event.target.files[0]);
       setUploadStatus('select');
-      setProgress(0);
     }
   };
 
@@ -44,7 +48,6 @@ const BlueprintForm = () => {
   const clearFileInput = () => {
     inputRef.current.value = "";
     setSelectedFile(null);
-    setProgress(0);
     setUploadStatus('select');
   };
 
@@ -64,10 +67,9 @@ const BlueprintForm = () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await axios.post(`${backend}/api/upload`, formData, {
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setProgress(percentCompleted);
+      const response = await axiosInstance.post(`http://localhost:5000/api/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         }
       });
 
@@ -85,7 +87,7 @@ const BlueprintForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${backend}/api/submit-blueprint`, {
+      const response = await axiosInstance.post(`http://localhost:5000/api/submit-blueprint`, {
         ...formData,
         fileId: selectedFile ? selectedFile.name : null
       });
@@ -136,16 +138,8 @@ const BlueprintForm = () => {
             </GradientButton>
           ) : (
             <div className="space-y-4">
-              <div className="bg-gray-700 rounded-lg p-4 flex items-center space-x-4">
-                <div className="flex-1 overflow-hidden">
-                  <h6 className="text-sm font-medium truncate">{selectedFile.name}</h6>
-                  <div className="w-full bg-gray-600 rounded-full h-1.5 mt-2">
-                    <div
-                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
+              <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+                <h6 className="text-sm font-medium truncate">{selectedFile.name}</h6>
                 {uploadStatus === 'select' && (
                   <button type="button" onClick={clearFileInput} className="text-gray-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

@@ -3,7 +3,13 @@ import { uploadBlueprint, submitBlueprintForm } from '../controllers/blueprint.c
 
 const router = express.Router();
 
-router.post('/upload', uploadBlueprint);
-router.post('/submit-blueprint', submitBlueprintForm);
+
+router.route('/api/upload')
+  .post(uploadBlueprint)
+  
+
+router.route('/api/submit-blueprint')
+  .post(submitBlueprintForm)
+  
 
 export default router;
