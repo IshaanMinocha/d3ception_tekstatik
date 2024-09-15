@@ -83,8 +83,8 @@ const getModel = asyncHandler(async (req, res) => {
             model.model.glb = modelData.model_urls.glb;
             model.model.fbx = modelData.model_urls.fbx;
             model.model.uzdz = modelData.model_urls.uzdz;
-            model.model.thumbnail = modelData.thumbnail_url;
-            model.model.texture = modelData.texture_urls.base_color;
+            model.thumbnail = modelData.thumbnail_url;
+            model.texture = modelData.texture_urls.base_color;
 
             await model.save();
 
@@ -97,7 +97,7 @@ const getModel = asyncHandler(async (req, res) => {
             res.status(200).json({
                 success: true,
                 model: {
-                    status: model.status,
+                    status: response.data.status,
                 },
                 message: "error from meshy server",
                 error: response.data.task_error.message
@@ -106,7 +106,7 @@ const getModel = asyncHandler(async (req, res) => {
             res.status(200).json({
                 success: true,
                 model: {
-                    status: model.status,
+                    status: response.data.status,
                 },
                 progress: response.data.progress
             });
