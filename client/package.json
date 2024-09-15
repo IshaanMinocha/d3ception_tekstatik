@@ -11,13 +11,17 @@
     "start": "vite"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1",
+    "@tauri-apps/api": "^1.6.0",
     "axios": "^1.7.7",
     "axios-tauri-api-adapter": "^0.2.2",
+    "client": "file:",
+    "framer-motion": "^11.5.4",
     "lucide-react": "^0.441.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.2",
+    "tailwind-merge": "^2.5.2",
     "tauri-app": "file:"
   },
   "devDependencies": {
