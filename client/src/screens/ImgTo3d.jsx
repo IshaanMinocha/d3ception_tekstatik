@@ -76,7 +76,7 @@ function ImgTo3d() {
         const response = await axios.get(`${backendUrl}/model/get-model/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
-            }
+          }
         });
         const { status, model } = response.data.model;
         // console.log(response.data)
@@ -129,19 +129,37 @@ function ImgTo3d() {
         <div className="my-5">
           <p className="text-lg">Task ID: <span className='text-xl'>{taskId}</span></p>
           <p>
-            Status: 
+            Status:
             {status === 'IN_PROGRESS' && (
-              <span className="flex items-center">
-                <FaSpinner className="animate-spin mr-2" /> Work in progress...
+              <span className="flex font-bold justify-center items-center my-4">
+                <FaSpinner className="animate-spin mr-2 text-3xl" /> In progress...
               </span>
             )}
             {status === 'SUCCEEDED' && ' Success!'}
             {status === 'PENDING' && ' Still Pending'}
           </p>
-          {status === 'IN_PROGRESS' && <p>Progress: {progress}%</p>}
+          {status === 'IN_PROGRESS' && <p className='text-2xl text-center'>Progress: {progress}%</p>}
         </div>
       )}
 
+      {/* <model-viewer
+        // src="https://assets.meshy.ai/google-oauth2%7C115507272937322081344/tasks/0191f33b-6948-7b95-87fe-b48414b51abb/output/model.glb?Expires=1726621960&Signature=KCCsMbxJhR4JTAnoylCMtKu42GeFRaF6trBo41da~pfVwr5-7~PljF3nQ93bB-rmwtDQbJX2N~V2oFXFboJSOlsSQWb2SwhkSY425PnFsG~y9k93I856yki~ufO5aSVe0J8PWlHZABKoQcYvtqJ1nOHpKfHwLAKUCvq7Vsdkg-OqWt3Y6xgkNNDniLTFFPtiuvI3lD~Hd~fggfGSak72-yCg7jT7sCr-eXU9ngNNYo~hg3Ye2Q-FuRgxvylaHUoy9czJ2zqs4Grhuua6f-hdRqxlmWcDRThhwrr8a9GAuy3TZKAemNJbqHjn6zpA4Dc6reBR7b0B4VQNR3La54JOtA__&Key-Pair-Id=KL5I0C8H7HX83"
+        src="model.glb"
+        style={{
+          width: '80%',
+          margin: "20px auto 20px auto",
+          height: '400px',
+          backgroundColor: '#3d35b1',
+          '--poster-color': '#ffffff00',
+        }}
+        ios-src="https://cdn.glitch.com/36cb8393-65c6-408d-a538-055ada20431b/Astronaut.usdz?v=1569545377878"
+        poster="loading.gif"
+        alt="mgcms"
+        shadow-intensity="1"
+        camera-controls
+        auto-rotate
+        ar
+      /> */}
       {status === 'SUCCEEDED' && downloadLink && (
         <div className="mt-5 mb-20">
           <a href={downloadLink} download className="bg-blue-500 text-white rounded-xl py-2 px-5">Download 3D Model</a>
