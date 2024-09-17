@@ -118,7 +118,7 @@ const BlueprintForm = () => {
   );
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
+    <div className="relative flex flex-col min-h-[100vh] items-center justify-center  bg-gray-900 text-white p-6">
       <form onSubmit={handleSubmit} className="z-10 w-full max-w-md space-y-6 bg-gray-800 p-8 rounded-xl shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Blueprint Upload Form</h2>
         
