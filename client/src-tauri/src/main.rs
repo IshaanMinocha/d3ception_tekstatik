@@ -6,7 +6,7 @@ use tauri::Manager;
 async fn start_backend(app: tauri::AppHandle) -> Result<(), String> {
     let server_path = env::var("SERVER_PATH").unwrap_or_else(|_| "../../../backend/server.js".to_string());
     
-    let mut child = Command::new("node")
+    let child = Command::new("node")
         .arg(&server_path)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
