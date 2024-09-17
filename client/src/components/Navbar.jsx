@@ -7,11 +7,12 @@ import {
   SiJavascript,
   SiCss3,
 } from "react-icons/si";
+import { Link } from "react-router-dom";
 
 const IconSideNav = () => {
   return (
-      <SideNav />
-  
+    <SideNav />
+
   );
 };
 
@@ -19,16 +20,20 @@ const SideNav = () => {
   const [selected, setSelected] = useState(0);
 
   return (
-  
+
     <nav className="min-h-[100vh] w-fit bg-slate-950 p-4 flex flex-col items-center gap-2">
       <h1 className="font-bold text-2xl"
       >d3</h1>
-      <NavItem selected={selected === 0} id={0} setSelected={setSelected}>
-        <SiTailwindcss />
-      </NavItem>
-      <NavItem selected={selected === 1} id={1} setSelected={setSelected}>
-        <SiReact />
-      </NavItem>
+      <Link to="/imgto3d">
+        <NavItem selected={selected === 0} id={0} setSelected={setSelected}>
+          <SiTailwindcss />
+        </NavItem>
+      </Link>
+      <Link to="/dashboard">
+        <NavItem selected={selected === 1} id={1} setSelected={setSelected}>
+          <SiReact />
+        </NavItem>
+      </Link>
       <NavItem selected={selected === 2} id={2} setSelected={setSelected}>
         <SiJavascript />
       </NavItem>

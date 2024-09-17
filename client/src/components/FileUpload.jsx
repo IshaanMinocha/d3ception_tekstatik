@@ -19,9 +19,7 @@ const GradientButton = ({ children, onClick, className = "", disabled = false })
   </button>
 );
 
-const backend = import.meta.env.VITE_BACKEND_URI;
-
-console.log(backend)
+const backendUrl = import.meta.env.VITE_BACKEND_URI;
 
 const BlueprintForm = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -68,7 +66,7 @@ const BlueprintForm = () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await axiosInstance.post(`http://localhost:5000/blueprint/upload`, formData, {
+      const response = await axiosInstance.post(`${backendUrl}/blueprint/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -88,7 +86,7 @@ const BlueprintForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post(`http://localhost:5000/blueprint/submit`, {
+      const response = await axiosInstance.post(`${backendUrl}/blueprint/submit`, {
         ...formData,
         // fileId: selectedFile ? selectedFile.name : null
       });
@@ -121,7 +119,7 @@ const BlueprintForm = () => {
     <div className="relative flex flex-col min-h-[100vh] items-center justify-center  bg-gray-900 text-white p-6">
       <form onSubmit={handleSubmit} className="z-10 w-full max-w-md space-y-6 bg-gray-800 p-8 rounded-xl shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Blueprint Upload Form</h2>
-        
+
         <div className="space-y-4">
           <input
             ref={inputRef}

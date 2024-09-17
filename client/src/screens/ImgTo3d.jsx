@@ -1,32 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import axiosTauriApiAdapter from 'axios-tauri-api-adapter';
+import { FaSpinner } from 'react-icons/fa';
+
+const axiosInstance = axios.create({
+  adapter: axiosTauriApiAdapter,
+});
 
 function ImgTo3d() {
   const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const [taskId, setTaskId] = useState(null);
   const [status, setStatus] = useState('pending');
   const [progress, setProgress] = useState(0);
   const [downloadLink, setDownloadLink] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URI;
+
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTYzMzgzNzFlNTQ0ZGI0NDYwMmM0ZiIsImlhdCI6MTcyNjU5MDAxNywiZXhwIjoxNzI5MTgyMDE3fQ.i-ULGZQxbJomdtGka0WfyWn6Al5hVFHoHIAFYSkiqnw';
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
-  const handleSubmit = async () => {
+  const handleImageUpload = async () => {
     if (!file) return alert('Please upload an image.');
 
     const formData = new FormData();
     formData.append('file', file);
+    setIsUploading(true);
 
     try {
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTYzMzgzNzFlNTQ0ZGI0NDYwMmM0ZiIsImlhdCI6MTcyNjM2MjQ5OSwiZXhwIjoxNzI4OTU0NDk5fQ.bl1i0kb0Ik_eczRy9kaXp8On70fvCVWROD6Zjf2shE8';  //will be taken from local storage after sujal setups auth
-      const response = await axios.post('http://localhost:5000/create-task', formData, {
+      const response = await axios.post(`${backendUrl}/upload/blueprint`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      setImageUrl(response.data.image_url);
+      setIsUploading(false);
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      setIsUploading(false);
+    }
+  };
+
+
+  const handleSubmit = async () => {
+    if (!imageUrl) return alert('Please upload the image first.');
+
+    setIsCreating(true);
+
+    try {
+      const response = await axiosInstance.post(`${backendUrl}/model/create-task`, {
+        imageUrl,
+      }, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
         }
       });
+
       setTaskId(response.data.model.meshyId);
+      // console.log(response.data.model.meshyId)
       pollForModel(response.data.model.meshyId);
     } catch (error) {
       console.error('Failed to create task:', error);
@@ -36,15 +73,22 @@ function ImgTo3d() {
   const pollForModel = (id) => {
     const intervalId = setInterval(async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/get-model/${id}`);
-        const { status, progress, model_urls } = response.data.model;
+        const response = await axios.get(`${backendUrl}/model/get-model/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+            }
+        });
+        const { status, model } = response.data.model;
+        // console.log(response.data)
 
         setStatus(status);
-        setProgress(progress);
+        setProgress(response.data.progress);
+        // console.log(response.data.progress)
 
         if (status === 'SUCCEEDED') {
-          setDownloadLink(model_urls.glb);
+          setDownloadLink(model.glb);
           clearInterval(intervalId);
+          setIsCreating(false);
         }
       } catch (error) {
         console.error('Error polling model:', error);
@@ -53,20 +97,54 @@ function ImgTo3d() {
   };
 
   return (
-    <div>
-      <h2>Image to 3D Converter</h2>
+    <div className="flex flex-col gap-10 justify-center items-center">
+      <h2 className="text-2xl font-bold text-center my-10">Blueprint to 3D Model</h2>
+
       <input type="file" onChange={handleFileChange} />
-      <button onClick={handleSubmit}>Upload and Create 3D Model Task</button>
+      <button
+        onClick={handleImageUpload}
+        className="border-2 border-white p-2"
+        disabled={isUploading}>
+        {isUploading ? 'Uploading...' : 'Upload Image'}
+      </button>
+
+      {imageUrl && (
+        <div className="mt-5 flex flex-col justify-center items-center gap-10">
+          <p>Image uploaded successfully. URL: <a href={imageUrl} target='_blank' className='underline text-blue-400'>View Image Online</a></p>
+          <img
+            src={imageUrl}
+            alt="Uploaded Image Preview"
+            className="mt-4 w-1/3 h-auto border-2 border-gray-300"
+          />
+          <button
+            onClick={handleSubmit}
+            className="border-2 border-white p-2"
+            disabled={isCreating}>
+            {isCreating ? 'Creating 3D Model...' : 'Create 3D Model'}
+          </button>
+        </div>
+      )}
+
       {taskId && (
-        <div>
-          <p>Task ID: {taskId}</p>
-          <p>Status: {status}</p>
+        <div className="my-5">
+          <p className="text-lg">Task ID: <span className='text-xl'>{taskId}</span></p>
+          <p>
+            Status: 
+            {status === 'IN_PROGRESS' && (
+              <span className="flex items-center">
+                <FaSpinner className="animate-spin mr-2" /> Work in progress...
+              </span>
+            )}
+            {status === 'SUCCEEDED' && ' Success!'}
+            {status === 'PENDING' && ' Still Pending'}
+          </p>
           {status === 'IN_PROGRESS' && <p>Progress: {progress}%</p>}
         </div>
       )}
+
       {status === 'SUCCEEDED' && downloadLink && (
-        <div>
-          <a href={downloadLink} download>Download 3D Model</a>
+        <div className="mt-5 mb-20">
+          <a href={downloadLink} download className="bg-blue-500 text-white rounded-xl py-2 px-5">Download 3D Model</a>
         </div>
       )}
     </div>
