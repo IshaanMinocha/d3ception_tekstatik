@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Upload, Check } from 'lucide-react';
 import axios from 'axios';
 import axiosTauriApiAdapter from 'axios-tauri-api-adapter';
@@ -20,11 +20,13 @@ const GradientButton = ({ children, onClick, className = "", disabled = false })
 );
 
 const backendUrl = import.meta.env.VITE_BACKEND_URI;
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTZlNGFlZGY2Mzg1MWM2NGQwZDlmZCIsImlhdCI6MTcyNjc0NDcwMiwiZXhwIjoxNzI5MzM2NzAyfQ.Q_JFrLX1HxBHSKkIMPVvNnpAM9RYs8J_dQp9vtE8DCY';
 
 const BlueprintForm = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('select');
-  const inputRef = useRef();
 
   const [formData, setFormData] = useState({
     height: '',
@@ -33,21 +35,33 @@ const BlueprintForm = () => {
     floors: ''
   });
 
-  const handleFileChange = (event) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setSelectedFile(event.target.files[0]);
-      setUploadStatus('select');
-    }
-  };
-
-  const onChooseFile = () => {
-    inputRef.current.click();
-  };
-
-  const clearFileInput = () => {
-    inputRef.current.value = "";
-    setSelectedFile(null);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
     setUploadStatus('select');
+  };
+
+  const handleImageUpload = async () => {
+    if (!file) return alert('Please choose a blueprint file.');
+
+    const formData = new FormData();
+    formData.append('file', file);
+    setIsUploading(true);
+
+    try {
+      const response = await axios.post(`${backendUrl}/upload/blueprint`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      setImageUrl(response.data.image_url);
+      setIsUploading(false);
+      setUploadStatus('done');
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      setIsUploading(false);
+      setUploadStatus('error');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -58,43 +72,26 @@ const BlueprintForm = () => {
     }));
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    setUploadStatus('uploading');
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-    try {
-      const response = await axiosInstance.post(`${backendUrl}/blueprint/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      });
-
-      if (response.status === 200) {
-        setUploadStatus('done');
-      } else {
-        setUploadStatus('error');
-      }
-    } catch (error) {
-      console.error('Upload failed:', error);
-      setUploadStatus('error');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!imageUrl) return alert('Please upload the blueprint first.');
+
     try {
       const response = await axiosInstance.post(`${backendUrl}/blueprint/submit`, {
         ...formData,
-        // fileId: selectedFile ? selectedFile.name : null
+        imageUrl
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
       if (response.status === 200) {
         console.log('Form submitted successfully');
+       
       }
     } catch (error) {
       console.error('Form submission failed:', error);
+      
     }
   };
 
@@ -116,52 +113,34 @@ const BlueprintForm = () => {
   );
 
   return (
-    <div className="relative flex flex-col min-h-[100vh] items-center justify-center  bg-gray-900 text-white p-6">
+    <div className="relative flex flex-col min-h-[100vh] items-center justify-center bg-gray-900 text-white p-6">
       <form onSubmit={handleSubmit} className="z-10 w-full max-w-md space-y-6 bg-gray-800 p-8 rounded-xl shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Blueprint Upload Form</h2>
 
         <div className="space-y-4">
           <input
-            ref={inputRef}
             type="file"
             onChange={handleFileChange}
-            className="hidden"
+            className="w-full text-sm text-gray-300
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-50 file:text-blue-700
+              hover:file:bg-blue-100"
           />
 
-          {!selectedFile ? (
-            <GradientButton onClick={onChooseFile} className="w-full h-36">
-              <div className="flex flex-col items-center justify-center">
-                <Upload className="w-12 h-12 mb-2" />
-                <span className="text-lg">Choose Blueprint</span>
-              </div>
-            </GradientButton>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-                <h6 className="text-sm font-medium truncate">{selectedFile.name}</h6>
-                {uploadStatus === 'select' && (
-                  <button type="button" onClick={clearFileInput} className="text-gray-400 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                )}
-                {uploadStatus === 'done' && (
-                  <div className="text-green-500">
-                    <Check className="h-6 w-6" />
-                  </div>
-                )}
-              </div>
-              {uploadStatus !== 'done' && (
-                <GradientButton onClick={handleUpload} className="w-full" disabled={uploadStatus === 'uploading'}>
-                  {uploadStatus === 'select' ? "Upload Blueprint" : "Uploading..."}
-                </GradientButton>
-              )}
-              {uploadStatus === 'done' && (
-                <GradientButton className="w-full" disabled>
-                  <Check className="w-6 h-6 text-green-500" /> Uploaded
-                </GradientButton>
-              )}
+          <GradientButton onClick={handleImageUpload} className="w-full" disabled={isUploading || !file}>
+            {isUploading ? 'Uploading...' : 'Upload Blueprint'}
+          </GradientButton>
+
+          {imageUrl && (
+            <div className="mt-4">
+              <p>Blueprint uploaded successfully. <a href={imageUrl} target='_blank' className='underline text-blue-400'>View Blueprint Online</a></p>
+              <img
+                src={imageUrl}
+                alt="Uploaded Blueprint Preview"
+                className="mt-2 w-full h-auto border-2 border-gray-300"
+              />
             </div>
           )}
         </div>
@@ -171,7 +150,7 @@ const BlueprintForm = () => {
         <InputField name="length" label="Length (m)" type="number" value={formData.length} onChange={handleInputChange} />
         <InputField name="floors" label="Number of Floors" type="number" value={formData.floors} onChange={handleInputChange} />
 
-        <GradientButton onClick={handleSubmit} className="w-full">
+        <GradientButton onClick={handleSubmit} className="w-full" disabled={!imageUrl}>
           Submit Form
         </GradientButton>
       </form>

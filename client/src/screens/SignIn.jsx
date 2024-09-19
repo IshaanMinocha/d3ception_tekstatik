@@ -10,6 +10,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URI;
 
   useEffect(() => {
     checkExistingToken();
@@ -17,8 +18,12 @@ const SignIn = () => {
 
   const checkExistingToken = async () => {
     try {
-      const token = await invoke("get_storage_item", { key: "authToken" });
-      if (token) {
+
+    
+
+      const localToken = localStorage.getItem("authToken");
+
+      if (localToken) {
         navigate("/dashboard/");
       }
     } catch (err) {
@@ -26,12 +31,21 @@ const SignIn = () => {
     }
   };
 
+  const setAuthToken = async (token) => {
+    try {
+      localStorage.setItem("authToken", token);
+    } catch (err) {
+      console.error("Error setting token:", err);
+    }
+  };
+
   const handleSignIn = async (e) => {
     e.preventDefault();
+  
     try {
-      const response = await axios.post("http://localhost:5000/user/login", { username, password });
+      const response = await axios.post(`${backendUrl}/user/login`, { username, password });
       if (response.data.success) {
-        await invoke("set_storage_item", { key: "authToken", value: response.data.token });
+        await setAuthToken(response.data.token);
         navigate("/dashboard/");
       } else {
         setError(response.data.message);

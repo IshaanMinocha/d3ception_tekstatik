@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import axiosTauriApiAdapter from 'axios-tauri-api-adapter';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaUpload, FaCube, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 
 const axiosInstance = axios.create({
   adapter: axiosTauriApiAdapter,
@@ -9,6 +9,7 @@ const axiosInstance = axios.create({
 
 function ImgTo3d() {
   const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [taskId, setTaskId] = useState(null);
   const [status, setStatus] = useState('pending');
@@ -17,12 +18,44 @@ function ImgTo3d() {
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URI;
+  const fileInputRef = useRef(null);
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTYzMzgzNzFlNTQ0ZGI0NDYwMmM0ZiIsImlhdCI6MTcyNjU5MDAxNywiZXhwIjoxNzI5MTgyMDE3fQ.i-ULGZQxbJomdtGka0WfyWn6Al5hVFHoHIAFYSkiqnw';
+  const backendUrl = import.meta.env.VITE_BACKEND_URI;
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTZlNGFlZGY2Mzg1MWM2NGQwZDlmZCIsImlhdCI6MTcyNjc0NDcwMiwiZXhwIjoxNzI5MzM2NzAyfQ.Q_JFrLX1HxBHSKkIMPVvNnpAM9RYs8J_dQp9vtE8DCY';
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const droppedFile = e.dataTransfer.files[0];
+    setFile(droppedFile);
+    
+    if (droppedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(droppedFile);
+    }
   };
 
   const handleImageUpload = async () => {
@@ -47,7 +80,6 @@ function ImgTo3d() {
     }
   };
 
-
   const handleSubmit = async () => {
     if (!imageUrl) return alert('Please upload the image first.');
 
@@ -63,10 +95,10 @@ function ImgTo3d() {
       });
 
       setTaskId(response.data.model.meshyId);
-      // console.log(response.data.model.meshyId)
       pollForModel(response.data.model.meshyId);
     } catch (error) {
       console.error('Failed to create task:', error);
+      setIsCreating(false);
     }
   };
 
@@ -79,11 +111,9 @@ function ImgTo3d() {
           }
         });
         const { status, model } = response.data.model;
-        // console.log(response.data)
 
         setStatus(status);
         setProgress(response.data.progress);
-        // console.log(response.data.progress)
 
         if (status === 'SUCCEEDED') {
           setDownloadLink(model.glb);
@@ -97,74 +127,108 @@ function ImgTo3d() {
   };
 
   return (
-    <div className="flex flex-col gap-10 justify-center items-center">
-      <h2 className="text-2xl font-bold text-center my-10">Blueprint to 3D Model</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
+      <div className="w-full max-w-3xl bg-gray-800 rounded-xl shadow-lg p-8">
+        <h2 className="text-3xl font-bold text-center mb-8">Blueprint to 3D Model</h2>
 
-      <input type="file" onChange={handleFileChange} />
-      <button
-        onClick={handleImageUpload}
-        className="border-2 border-white p-2"
-        disabled={isUploading}>
-        {isUploading ? 'Uploading...' : 'Upload Image'}
-      </button>
-
-      {imageUrl && (
-        <div className="mt-5 flex flex-col justify-center items-center gap-10">
-          <p>Image uploaded successfully. URL: <a href={imageUrl} target='_blank' className='underline text-blue-400'>View Image Online</a></p>
-          <img
-            src={imageUrl}
-            alt="Uploaded Image Preview"
-            className="mt-4 w-1/3 h-auto border-2 border-gray-300"
-          />
-          <button
-            onClick={handleSubmit}
-            className="border-2 border-white p-2"
-            disabled={isCreating}>
-            {isCreating ? 'Creating 3D Model...' : 'Create 3D Model'}
-          </button>
-        </div>
-      )}
-
-      {taskId && (
-        <div className="my-5">
-          <p className="text-lg">Task ID: <span className='text-xl'>{taskId}</span></p>
-          <p>
-            Status:
-            {status === 'IN_PROGRESS' && (
-              <span className="flex font-bold justify-center items-center my-4">
-                <FaSpinner className="animate-spin mr-2 text-3xl" /> In progress...
-              </span>
+        <div className="space-y-6">
+          <div 
+            className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all duration-300"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current.click()}
+          >
+            {previewUrl ? (
+              <img src={previewUrl} alt="Selected preview" className="max-h-full max-w-full object-contain" />
+            ) : (
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <FaUpload className="w-10 h-10 mb-3 text-gray-400" />
+                <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+              </div>
             )}
-            {status === 'SUCCEEDED' && ' Success!'}
-            {status === 'PENDING' && ' Still Pending'}
-          </p>
-          {status === 'IN_PROGRESS' && <p className='text-2xl text-center'>Progress: {progress}%</p>}
-        </div>
-      )}
+            <input 
+              ref={fileInputRef}
+              id="dropzone-file" 
+              type="file" 
+              className="hidden" 
+              onChange={handleFileChange} 
+            />
+          </div>
 
-      {/* <model-viewer
-        // src="https://assets.meshy.ai/google-oauth2%7C115507272937322081344/tasks/0191f33b-6948-7b95-87fe-b48414b51abb/output/model.glb?Expires=1726621960&Signature=KCCsMbxJhR4JTAnoylCMtKu42GeFRaF6trBo41da~pfVwr5-7~PljF3nQ93bB-rmwtDQbJX2N~V2oFXFboJSOlsSQWb2SwhkSY425PnFsG~y9k93I856yki~ufO5aSVe0J8PWlHZABKoQcYvtqJ1nOHpKfHwLAKUCvq7Vsdkg-OqWt3Y6xgkNNDniLTFFPtiuvI3lD~Hd~fggfGSak72-yCg7jT7sCr-eXU9ngNNYo~hg3Ye2Q-FuRgxvylaHUoy9czJ2zqs4Grhuua6f-hdRqxlmWcDRThhwrr8a9GAuy3TZKAemNJbqHjn6zpA4Dc6reBR7b0B4VQNR3La54JOtA__&Key-Pair-Id=KL5I0C8H7HX83"
-        src="model.glb"
-        style={{
-          width: '80%',
-          margin: "20px auto 20px auto",
-          height: '400px',
-          backgroundColor: '#3d35b1',
-          '--poster-color': '#ffffff00',
-        }}
-        ios-src="https://cdn.glitch.com/36cb8393-65c6-408d-a538-055ada20431b/Astronaut.usdz?v=1569545377878"
-        poster="loading.gif"
-        alt="mgcms"
-        shadow-intensity="1"
-        camera-controls
-        auto-rotate
-        ar
-      /> */}
-      {status === 'SUCCEEDED' && downloadLink && (
-        <div className="mt-5 mb-20">
-          <a href={downloadLink} download className="bg-blue-500 text-white rounded-xl py-2 px-5">Download 3D Model</a>
+          <button
+            onClick={handleImageUpload}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
+            disabled={isUploading || !file}
+          >
+            {isUploading ? <FaSpinner className="animate-spin mr-2" /> : <FaUpload className="mr-2" />}
+            {isUploading ? 'Uploading...' : 'Upload Image'}
+          </button>
+
+          {imageUrl && (
+            <div className="mt-6 space-y-4">
+              <p className="text-center">Image uploaded successfully. <a href={imageUrl} target='_blank' className='underline text-blue-400 hover:text-blue-300'>View Image Online</a></p>
+              <img
+                src={imageUrl}
+                alt="Uploaded Image Preview"
+                className="mx-auto max-w-full h-auto border-2 border-gray-300 rounded-lg"
+              />
+              <button
+                onClick={handleSubmit}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
+                disabled={isCreating}
+              >
+                {isCreating ? <FaSpinner className="animate-spin mr-2" /> : <FaCube className="mr-2" />}
+                {isCreating ? 'Creating 3D Model...' : 'Create 3D Model'}
+              </button>
+            </div>
+          )}
+
+          {taskId && (
+            <div className="mt-6 p-4 bg-gray-700 rounded-lg">
+              <p className="text-lg mb-2">Task ID: <span className='font-mono text-xl'>{taskId}</span></p>
+              <div className="flex items-center">
+                <p className="mr-2">Status:</p>
+                {status === 'IN_PROGRESS' && (
+                  <span className="flex items-center text-yellow-400">
+                    <FaSpinner className="animate-spin mr-2" /> In progress...
+                  </span>
+                )}
+                {status === 'SUCCEEDED' && (
+                  <span className="flex items-center text-green-400">
+                    <FaCheck className="mr-2" /> Success!
+                  </span>
+                )}
+                {status === 'PENDING' && (
+                  <span className="flex items-center text-blue-400">
+                    <FaExclamationTriangle className="mr-2" /> Pending
+                  </span>
+                )}
+              </div>
+              {status === 'IN_PROGRESS' && (
+                <div className="mt-4">
+                  <div className="w-full bg-gray-600 rounded-full h-2.5">
+                    <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+                  </div>
+                  <p className='text-center mt-2'>Progress: {progress}%</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {status === 'SUCCEEDED' && downloadLink && (
+            <div className="mt-6 text-center">
+              <a 
+                href={downloadLink} 
+                download 
+                className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300"
+              >
+                Download 3D Model
+              </a>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

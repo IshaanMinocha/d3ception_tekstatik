@@ -39,11 +39,11 @@ const RegistrationForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); 
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URI;
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/user/register", {
+      const response = await axios.post(`${backendUrl}/user/register`, {
         username,
         password,
       });
