@@ -16,13 +16,13 @@ const IconSideNav = () => {
 
 const SideNav = () => {
   const [selected, setSelected] = useState(0);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
 
- 
-      
+
+
 
       localStorage.removeItem("authToken");
 
@@ -40,39 +40,41 @@ const SideNav = () => {
       <Link to="/dashboard">
         <NavItem selected={selected === 0} id={0} setSelected={setSelected}>
           <div className="flex justify-left gap-2 place-items-center">
-          <FaWpforms /> Upload From
+            <FaWpforms /> Upload From
           </div>
         </NavItem>
       </Link>
       <Link to="/imgto3d">
         <NavItem selected={selected === 1} id={1} setSelected={setSelected}>
-        <div className="flex justify-left  gap-2 place-items-center">
-        <MdOutline3dRotation /> Image to 3D
+          <div className="flex justify-left  gap-2 place-items-center">
+            <MdOutline3dRotation /> Image to 3D
           </div>
         </NavItem>
       </Link>
-      <NavItem selected={selected === 2} id={2} setSelected={setSelected}>
-      <div className="flex justify-left gap-2 place-items-center">
-      <AiOutlineDashboard /> DashBoard
+      <Link to="/dashboard">
+        <NavItem selected={selected === 2} id={2} setSelected={setSelected}>
+          <div className="flex justify-left gap-2 place-items-center">
+            <AiOutlineDashboard /> DashBoard
           </div>
-      </NavItem>
+        </NavItem>
+      </Link>
       <NavItem selected={selected === 3} id={3} setSelected={setSelected}>
-      <div className="flex justify-left gap-2 place-items-center">
+        <div className="flex justify-left gap-2 place-items-center">
           <FaWpforms /> Profile
-          </div>
+        </div>
       </NavItem>
       <NavItem selected={selected === 4} id={4} setSelected={setSelected}>
-      <div className="flex justify-left gap-2 place-items-center">
-      <IoMdSettings /> Settings
-          </div>
+        <div className="flex justify-left gap-2 place-items-center">
+          <IoMdSettings /> Settings
+        </div>
       </NavItem>
       <button onClick={handleLogout}>
 
-      <div className="flex justify-left gap-2 place-items-center text-left m-4 text-sm relative">
-      <CiLogout />Logout
-          </div>
-    </button>
-   
+        <div className="flex justify-left gap-2 place-items-center text-left m-4 text-sm relative">
+          <CiLogout />Logout
+        </div>
+      </button>
+
     </nav>
   );
 };

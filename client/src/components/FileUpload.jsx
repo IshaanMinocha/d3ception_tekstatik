@@ -20,7 +20,7 @@ const GradientButton = ({ children, onClick, className = "", disabled = false })
 );
 
 const backendUrl = import.meta.env.VITE_BACKEND_URI;
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTZlNGFlZGY2Mzg1MWM2NGQwZDlmZCIsImlhdCI6MTcyNjc0NDcwMiwiZXhwIjoxNzI5MzM2NzAyfQ.Q_JFrLX1HxBHSKkIMPVvNnpAM9RYs8J_dQp9vtE8DCY';
+const token = localStorage.getItem('authToken');
 
 const BlueprintForm = () => {
   const [file, setFile] = useState(null);

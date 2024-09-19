@@ -21,12 +21,12 @@ function ImgTo3d() {
   const fileInputRef = useRef(null);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URI;
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTZlNGFlZGY2Mzg1MWM2NGQwZDlmZCIsImlhdCI6MTcyNjc0NDcwMiwiZXhwIjoxNzI5MzM2NzAyfQ.Q_JFrLX1HxBHSKkIMPVvNnpAM9RYs8J_dQp9vtE8DCY';
+  const token = localStorage.getItem('authToken');
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-    
+
     if (selectedFile) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -48,7 +48,7 @@ function ImgTo3d() {
     e.stopPropagation();
     const droppedFile = e.dataTransfer.files[0];
     setFile(droppedFile);
-    
+
     if (droppedFile) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -132,7 +132,7 @@ function ImgTo3d() {
         <h2 className="text-3xl font-bold text-center mb-8">Blueprint to 3D Model</h2>
 
         <div className="space-y-6">
-          <div 
+          <div
             className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all duration-300"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -147,12 +147,12 @@ function ImgTo3d() {
                 <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
               </div>
             )}
-            <input 
+            <input
               ref={fileInputRef}
-              id="dropzone-file" 
-              type="file" 
-              className="hidden" 
-              onChange={handleFileChange} 
+              id="dropzone-file"
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
             />
           </div>
 
@@ -218,9 +218,9 @@ function ImgTo3d() {
 
           {status === 'SUCCEEDED' && downloadLink && (
             <div className="mt-6 text-center">
-              <a 
-                href={downloadLink} 
-                download 
+              <a
+                href={downloadLink}
+                download
                 className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300"
               >
                 Download 3D Model
