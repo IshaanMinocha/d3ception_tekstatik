@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Check } from 'lucide-react';
 import axios from 'axios';
 import axiosTauriApiAdapter from 'axios-tauri-api-adapter';
@@ -19,6 +19,39 @@ const GradientButton = ({ children, onClick, className = "", disabled = false })
   </button>
 );
 
+const SuccessModal = ({ isOpen, onClose }) => {
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-gray-800 p-8 rounded-xl shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-bold text-center text-white mb-4">Form Submitted Successfully</h2>
+        <div className="flex justify-center items-center my-6">
+          <div className="rounded-full bg-green-500 p-3">
+            <Check className="w-10 h-10 text-white animate-pulse" />
+          </div>
+        </div>
+        <p className="text-gray-300 text-center mb-6">Your blueprint has been successfully submitted.</p>
+        <GradientButton onClick={onClose} className="w-full">
+          Close
+        </GradientButton>
+      </div>
+    </div>
+  );
+};
+
 const backendUrl = import.meta.env.VITE_BACKEND_URI;
 const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTZlNGFlZGY2Mzg1MWM2NGQwZDlmZCIsImlhdCI6MTcyNjc0NDcwMiwiZXhwIjoxNzI5MzM2NzAyfQ.Q_JFrLX1HxBHSKkIMPVvNnpAM9RYs8J_dQp9vtE8DCY';
 
@@ -27,6 +60,7 @@ const BlueprintForm = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('select');
+  const [showModal, setShowModal] = useState(false);
 
   const [formData, setFormData] = useState({
     height: '',
@@ -72,6 +106,18 @@ const BlueprintForm = () => {
     }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      height: '',
+      breadth: '',
+      length: '',
+      floors: ''
+    });
+    setFile(null);
+    setImageUrl(null);
+    setUploadStatus('select');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!imageUrl) return alert('Please upload the blueprint first.');
@@ -87,11 +133,11 @@ const BlueprintForm = () => {
       });
       if (response.status === 200) {
         console.log('Form submitted successfully');
-       
+        setShowModal(true);
+        resetForm(); // Reset the form after successful submission
       }
     } catch (error) {
       console.error('Form submission failed:', error);
-      
     }
   };
 
@@ -154,6 +200,8 @@ const BlueprintForm = () => {
           Submit Form
         </GradientButton>
       </form>
+
+      <SuccessModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 };
