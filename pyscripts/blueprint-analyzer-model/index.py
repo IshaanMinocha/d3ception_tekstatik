@@ -4,7 +4,7 @@ import cvzone
 
 model = YOLO("best.pt")
 classes = ["door", "sofa", "dining-table", "bed", "window"]
-img = cv2.imread("floorplan2.png")
+img = cv2.imread("pop.png")
 results = model(img, stream=True)
 for result in results:
 	boxes = result.boxes
