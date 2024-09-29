@@ -38,10 +38,13 @@ const Heading = () => (
 const RegistrationForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate(); 
   const backendUrl = import.meta.env.VITE_BACKEND_URI;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); 
     try {
       const response = await axios.post(`${backendUrl}/user/register`, {
         username,
@@ -51,16 +54,25 @@ const RegistrationForm = () => {
       if (response.data.success) {
         navigate("/"); 
       } else {
-        alert(response.data.message);
+        setError(response.data.message);
       }
     } catch (error) {
-      alert("An error occurred during registration. Please try again.");
+      if (error.response && error.response.status === 409) {
+        setError("User already exists. Please choose a different username.");
+      } else {
+        setError("An error occurred during registration. Please try again.");
+      }
       console.error(error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {error && (
+        <div className="mb-2 text-red-600">
+          {error}
+        </div>
+      )}
       <div className="mb-3">
         <label htmlFor="username-input" className="mb-1.5 block text-zinc-400">
           Username
