@@ -8,10 +8,10 @@ router.route('/register').post(registerUser);
 
 router.route('/login').post(loginUser);
 
-router.route('/profile').get(protect, getUserProfile);
+router.route('/profile').get(getUserProfile);
 
-router.route('/trainees').get(protect, teamleadOnly, getAllTrainees);
+router.route('/trainees').get(teamleadOnly, getAllTrainees);
 
-router.route('/teamleads').get(protect, adminOnly, getAllTeamleads);
+router.route('/teamleads').get(adminOnly, getAllTeamleads);
 
 export default router;

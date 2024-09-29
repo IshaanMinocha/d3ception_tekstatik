@@ -3,6 +3,7 @@ use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use tauri::Manager;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 struct Storage(Mutex<HashMap<String, String>>);
 
@@ -32,6 +33,16 @@ async fn start_backend(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn run_python_script() -> String {
+    "run_python_script".to_string()
+}
+
+#[tauri::command]
+fn get_resource_dir(app: tauri::AppHandle) -> PathBuf {
+    app.path_resolver().resource_dir().unwrap()
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(Storage(Mutex::new(HashMap::new())))
@@ -47,7 +58,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_storage_item,
             set_storage_item,
-            start_backend
+            start_backend,
+            run_python_script,
+            get_resource_dir
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
