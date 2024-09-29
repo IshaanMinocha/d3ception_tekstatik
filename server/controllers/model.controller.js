@@ -30,7 +30,7 @@ const createModelTask = asyncHandler(async (req, res) => {
         const response = await axios.post(`${meshyApiUrl}`, {
             image_url: imageUrl,
             enable_pbr: true,
-            surface_mode: "organic" //hard in prod
+            surface_mode: "hard" //hard in prod
         }, {
             headers: { Authorization: `Bearer ${meshyApiKey}` }
         });
