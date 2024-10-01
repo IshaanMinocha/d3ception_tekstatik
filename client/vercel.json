@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "redirects": [
+        {
+            "source": "/",
+            "destination": "https://github.com/IshaanMinocha/d3ception_tekstatik/releases/download/prod/d3ception_0.1.0_x64-setup.exe",
+            "permanent": true
+        }
+    ]
+}

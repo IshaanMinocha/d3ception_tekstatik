@@ -60,7 +60,7 @@ const RegistrationForm = () => {
       if (error.response && error.response.status === 409) {
         setError("User already exists. Please choose a different username.");
       } else {
-        setError("An error occurred during registration. Please try again.");
+        setError("An error occurred during registration. Please try again." + error);
       }
       console.error(error);
     }

@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "tauri-app",
+    "productName": "d3ception",
     "version": "0.1.0"
   },
   "tauri": {
@@ -67,7 +67,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri-app.app",
+      "identifier": "com.d3ception.app",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
