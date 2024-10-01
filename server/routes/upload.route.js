@@ -5,6 +5,6 @@ import { protect } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.route('/blueprint').post( singleUpload, uploadImage);
+router.route('/blueprint').post(singleUpload, uploadImage);
 
 export default router;
